@@ -42,6 +42,21 @@
                     </a>
                 </span>
             </div>
+            <div class="menu-item">
+                <span class="menu-link">
+                    <span class="menu-icon">
+                        <!--begin::Svg Icon | path: icons/duotune/general/gen051.svg-->
+                        <span class="svg-icon svg-icon-primary svg-icon-2x"><!-- Verify Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                <path d="M21.2,9.28L10.12,20.36c-0.38,0.38-1.02,0.38-1.41,0L2.81,15.47c-0.39-0.39-0.39-1.03,0-1.42l1.78-1.78c0.39-0.39,1.02-0.39,1.41,0l3.9,3.9l7.88-7.88c0.39-0.39,1.02-0.39,1.41,0l1.78,1.78C21.58,8.25,21.58,8.89,21.2,9.28z" fill="#000000"/>
+                            </svg><!--end::Svg Icon--></span>
+                        <!--end::Svg Icon-->
+                    </span>
+                    <a href="{{ route('readHashOnly') }}">
+                        <span class="menu-title">Validate Signed PDF</span>
+                    </a>
+                </span>
+            </div>
             <!-- End of References -->
         </div>
         @endrole
@@ -49,3 +64,4 @@
     </div>
 </div>
 {{--end::Aside Menu--}}
+

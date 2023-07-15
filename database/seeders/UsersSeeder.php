@@ -19,10 +19,10 @@ class UsersSeeder extends Seeder
     public function run(Generator $faker)
     {
         $demoUser = User::create([
-            'first_name'        => $faker->firstName,
-            'last_name'         => $faker->lastName,
-            'email'             => 'demo@demo.com',
-            'password'          => Hash::make('demo'),
+            'first_name'        => 'Admin Name',
+            'last_name'         => 'Last',
+            'email'             => 'admin@admin.com',
+            'password'          => Hash::make('admin'),
             'email_verified_at' => now(),
         ]);
 

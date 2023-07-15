@@ -1,6 +1,10 @@
 <x-auth-layout>
 
     <!--begin::Signin Form-->
+    <div class="text-center mb-10">
+        <img src="{{ asset('demo1/media/logos/A.png') }}" alt="Signature" class="img-fluid" style="max-width: 120px;">
+    </div>
+
     <form method="POST" action="{{ theme()->getPageUrl('login') }}" class="form w-100" novalidate="novalidate" id="kt_sign_in_form">
     @csrf
 
@@ -11,6 +15,14 @@
                 {{ __('Sign In') }}
             </h1>
             <!--end::Title-->
+
+            <div class="text-gray-400 fw-bold fs-4">
+                {{ __("Don't have an account?") }}
+                <br>
+                <a href="{{ theme()->getPageUrl('register') }}" class="link-primary fw-bolder">
+                    {{ __('Sign up here') }}
+                </a>
+            </div>
 
         </div>
         <!--begin::Heading-->
@@ -59,6 +71,7 @@
             <button type="submit" id="kt_sign_in_submit" class="btn btn-lg btn-primary w-100 mb-5">
                 @include('partials.general._button-indicator', ['label' => __('Continue')])
             </button>
+            
             <!--end::Submit button-->
 
         </div>

@@ -1,5 +1,7 @@
 <x-auth-layout>
-
+    <div class="text-center mb-10">
+        <img src="{{ asset('demo1/media/logos/A.png') }}" alt="Signature" class="img-fluid" style="max-width: 120px;">
+    </div>
     <!--begin::Signup Form-->
     <form method="POST" action="{{ theme()->getPageUrl('register') }}" class="form w-100" novalidate="novalidate" id="kt_sign_up_form">
     @csrf
@@ -99,7 +101,7 @@
 
         <!--begin::Actions-->
         <div class="text-center">
-            <button type="submit" id="kt_sign_up_submit" class="btn btn-lg btn-primary">
+            <button type="submit" id="kt_sign_up_submit" class="btn btn-lg btn-primary w-100">
                 @include('partials.general._button-indicator')
             </button>
         </div>

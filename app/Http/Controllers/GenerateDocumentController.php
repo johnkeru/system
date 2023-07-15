@@ -9,6 +9,7 @@ use App\Models\EmployeeInfo;
 use Illuminate\Http\Request;
 use App\Models\TrackDocument;
 use App\Models\GenerateDocument;
+use App\Models\HashPdfDoc;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
@@ -17,6 +18,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 use setasign\Fpdi\Fpdi;
+use Smalot\PdfParser\Parser;
+
+use function PHPUnit\Framework\isNull;
 
 class GenerateDocumentController extends Controller
 {
@@ -188,9 +192,16 @@ class GenerateDocumentController extends Controller
 
     public function adviserApproved($id)
     {
-        if (!request()->hasFile('signature')) {
-            return response()->noContent();
+        $hash8 = Str::random(8);
+        $checkPDFifHash = HashPdfDoc::where('hash_pdf', $hash8)->first();
+        if ($checkPDFifHash) {
+            // The record already exists, perform the update
+            $checkPDFifHash->update(['hash_pdf' => Str::random(8)]);
+        } else {
+            // The record does not exist, create a new one
+            $checkPDFifHash = HashPdfDoc::create(['hash_pdf' => $hash8]);
         }
+
         $data = GenerateDocument::find($id);
         $approver = EmployeeInfo::where('email', auth()->user()->email)->first();
 
@@ -198,8 +209,9 @@ class GenerateDocumentController extends Controller
         $path = "files/transactions/" . $substring . '/' . $data->file;
         $output_path = "files/transactions/" . $substring . '/signed_' . $data->file;
 
-        $approver_fullName = $approver->first_name . ' ' . $approver->middle_name . ' ' . $approver->last_name . ' - ' . 'Adviser';
-        $this->process($path, $output_path, $approver_fullName);
+        $approver_fullName = $approver->first_name . ' ' . $approver->middle_name . ' ' . $approver->last_name . ' - Adviser';
+        // T stands for Teacher
+        $this->process($path, $output_path, $approver_fullName, 'A-' . $checkPDFifHash->hash_pdf . '-A-');
 
         $data->where('id', $id)->update(array(
             'status_id' => '3',
@@ -239,6 +251,15 @@ class GenerateDocumentController extends Controller
 
     public function osasApproved($id)
     {
+        $hash8 = Str::random(8);
+        $checkPDFifHash = HashPdfDoc::where('hash_pdf', $hash8)->first();
+        if ($checkPDFifHash) {
+            // The record already exists, perform the update
+            $checkPDFifHash->update(['hash_pdf' => Str::random(8)]);
+        } else {
+            // The record does not exist, create a new one
+            $checkPDFifHash = HashPdfDoc::create(['hash_pdf' => $hash8]);
+        }
         if (!request()->hasFile('signature')) {
             return response()->noContent();
         }
@@ -246,14 +267,13 @@ class GenerateDocumentController extends Controller
 
         $approver = User::where('email', auth()->user()->email)->first();
 
-        $year = date('Y');
-        $delimiter = $year; // Use next year as delimiter
         $input = $data->control_number;
-        $substring = Str::before($input, $delimiter);
+        $substring = Str::before($input, date('Y')); // Use next year as delimiter
         $path = "files/transactions/" . $substring . '/' . $data->file;
 
-        $fullName = $approver->first_name . ' ' . $approver->last_name . ' - ' . 'Super Admin';
-        $this->process($path, $path, $fullName);
+        $fullName = $approver->first_name . ' ' . $approver->last_name . ' - Super Admin';
+        // SA stands for Super Admin
+        $this->process($path, $path, $fullName, 'O-' . $checkPDFifHash->hash_pdf . '-O-');
 
         $data->where('id', $id)->update(array(
             'status_id' => '4',
@@ -290,7 +310,7 @@ class GenerateDocumentController extends Controller
 
 
 
-    private function process($file_path, $output_path, $approver)
+    private function process($file_path, $output_path, $approver, $hash)
     {
         $path = public_path($file_path);
         $output = public_path($output_path);
@@ -308,15 +328,15 @@ class GenerateDocumentController extends Controller
             $imagePath = public_path('signature.png'); // Replace with the path to your default image file
         }
 
-        $this->fillPDF($path, $output, $imagePath, $approver);
+        $this->fillPDF($path, $output, $imagePath, $approver, $hash);
 
         if ($deleteSignature && $signaturePath) {
             Storage::delete($signaturePath); // Delete the signature file
         }
     }
 
-
-    private function fillPDF($path, $output, $imagePath, $approver)
+    //* FOR GENERATING SIGNATURE
+    private function fillPDF($path, $output, $imagePath, $approver, $hash)
     {
         $adviser = (strpos($approver, "Adviser") !== false) ? true : false;
 
@@ -336,11 +356,19 @@ class GenerateDocumentController extends Controller
             // Set the current page content from the imported page
             $fpdi->useTemplate($templateId);
 
+            if ($pageNo === 1) {
+                // Set the position and font properties for the hash text
+                $fpdi->SetXY(10, $adviser ? 10 : 20); // Adjust the X and Y coordinates as needed
+                $fpdi->SetFont('helvetica', 'B', 12); // Adjust the font family, style, and size as needed
+                // Write the hash text to the PDF
+                $fpdi->Cell(0, 0, $hash, 0, false, 'L', 0, '', 0, false, 'T', 'M');
+            }
+
             // Add the image, approver, and adviser on the last page
             if ($pageNo === $count) {
                 $imageWidth = 80; // Adjust the width of the image (smaller value)
                 $imageHeight = 0; // Auto-adjust the height of the image
-                $imageX = $adviser ? $size['width'] - 10 - $imageWidth + 10 : 0; // Adjust the X coordinate of the image
+                $imageX = $adviser ? 0 : $size['width'] - 10 - $imageWidth + 10; // Adjust the X coordinate of the image
                 $imageY = $size['height'] - 10 - $imageHeight - 30; /// Adjust the Y coordinate of the image
 
                 $fpdi->Image($imagePath, $imageX, $imageY, $imageWidth, $imageHeight);
@@ -350,11 +378,66 @@ class GenerateDocumentController extends Controller
                 $textX = $imageX + ($imageWidth - $textWidth) / 2; // Center the text horizontally
                 $textY = $imageY + $imageHeight + 9; // Adjust the Y coordinate to move the text higher
                 $fpdi->SetXY($textX, $textY);
-                $fpdi->Cell(0, 10, $approver, 0, 0, $adviser ? 'C' : 'L');
+                $fpdi->Cell(0, 10, $approver, 0, 0, $adviser ? 'L' : 'C');
             }
         }
 
         // Output the modified PDF to a file
         $fpdi->Output($output, 'F');
+    }
+
+
+    public function readHashOnly()
+    {
+        if (!auth()->check()) {
+            return response()->redirectTo('/login');
+        }
+        $data = [
+            'error' => '',
+            'message' => '',
+            'good' => '',
+        ];
+
+        if (!request()->hasFile('test_pdf')) {
+            return view('checkpdf.index', compact('data'));
+        }
+
+        $signedRequest = request()->file('test_pdf');
+        $path = $signedRequest->storeAs('/public/readHashOnly', $signedRequest->getClientOriginalName());
+
+        $parser = new Parser();
+        $pdf = $parser->parseFile('storage/readhashOnly/' . $signedRequest->getClientOriginalName());
+        $text = $pdf->getText();
+
+        $requiredSignatures = [
+            'A' => 'Missing or Invalid Adviser Signature.',
+            'O' => 'Missing or Invalid OSAS Signature.',
+        ];
+
+        foreach ($requiredSignatures as $key => $errorMessage) {
+            preg_match('/\b' . $key . '-([A-Za-z0-9]{8})-' . $key . '\b/', $text, $matches);
+            $signatureHash = $matches[1] ?? null;
+
+            if (!$signatureHash) {
+                $data['error'] = $errorMessage;
+                $data['good'] = false;
+                break;
+            }
+
+            if (!HashPdfDoc::where('hash_pdf', $signatureHash)->exists()) {
+                $data['error'] = 'Invalid ' . ($key === 'A' ? 'Adviser' : 'OSAS') . ' Signature';
+                $data['good'] = false;
+                break;
+            }
+        }
+
+        Storage::delete($path);
+
+        if (!$data['error']) {
+            $data['message'] = 'All signatures are valid.';
+            $data['good'] = true;
+        }
+
+        return view('checkpdf.index', compact('data'));
     }
 }

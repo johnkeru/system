@@ -23,30 +23,24 @@ class TrackDocumentController extends Controller
         $superAdmin = DB::table('model_has_roles')->where('model_id', $user->id)->first();
         $studentData = StudentInfo::where('email', $user->email)->first();
         $employeeData = EmployeeInfo::where('email', $user->email)->first();
-        if($studentData != NULL)
-        {//student
+        if ($studentData != NULL) { //student
             $orgId = OrgData::where('student_info_id', $studentData->id)->pluck('id')->first();
-        }
-        elseif($superAdmin->role_id == '1')
-        {
+        } elseif ($superAdmin->role_id == '1') {
             //none
-        }
-        else
-        {
+        } else {
             $orgId = OrgData::where('employee_info_id', $employeeData->id)->pluck('id')->first();
         }
- 
+
         $search = $request['search'] ?? "";
         if ($search != "") {
-            $docs = GenerateDocument::where('file_name', 'LIKE', "%".$search."%")->paginate(15);
-        } elseif($superAdmin->role_id == '1')
-        {
+            $docs = GenerateDocument::where('file_name', 'LIKE', "%" . $search . "%")->paginate(15);
+        } elseif ($superAdmin->role_id == '1') {
             $docs = GenerateDocument::paginate(15);
         } else {
             $docs = GenerateDocument::where('org_data_id', $orgId)->paginate(15);
         }
-        
-        return view('files.track_document.index',compact(['docs']));
+
+        return view('files.track_document.index', compact(['docs']));
     }
 
     /**

@@ -89,7 +89,7 @@ return array(
 
         // Changelog
         array(
-            'title'            => 'Changelog <span class="badge badge-changelog badge-light-danger bg-hover-danger text-hover-white fw-bold fs-9 px-2 ms-2">v'.theme()->getVersion().'</span>',
+            'title'            => 'Changelog <span class="badge badge-changelog badge-light-danger bg-hover-danger text-hover-white fw-bold fs-9 px-2 ms-2">v' . theme()->getVersion() . '</span>',
             'breadcrumb-title' => 'Changelog',
             'path'             => 'documentation/getting-started/changelog',
         ),
@@ -221,7 +221,6 @@ return array(
             </g>
              </svg><!--end::Svg Icon--></span>',
         ),
-
         // Separator
         array(
             'content' => '<div class="separator mx-1 my-4"></div>',
@@ -247,8 +246,5 @@ return array(
 
 
     // Horizontal menu
-    'horizontal'    => array(
-
-
-    ),
+    'horizontal'    => array(),
 );
