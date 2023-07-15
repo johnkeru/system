@@ -33,11 +33,11 @@ class TrackDocumentController extends Controller
 
         $search = $request['search'] ?? "";
         if ($search != "") {
-            $docs = GenerateDocument::where('file_name', 'LIKE', "%" . $search . "%")->paginate(15);
+            $docs = GenerateDocument::where('file_name', 'LIKE', "%" . $search . "%")->orderBy('created_at', 'DESC')->paginate(15);
         } elseif ($superAdmin->role_id == '1') {
-            $docs = GenerateDocument::paginate(15);
+            $docs = GenerateDocument::orderBy('created_at', 'DESC')->paginate(15);
         } else {
-            $docs = GenerateDocument::where('org_data_id', $orgId)->paginate(15);
+            $docs = GenerateDocument::where('org_data_id', $orgId)->orderBy('created_at', 'DESC')->paginate(15);
         }
 
         return view('files.track_document.index', compact(['docs']));

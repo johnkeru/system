@@ -16,7 +16,7 @@
                     <div class="modal-body">
                         <div class="mb-5">
                             <label for="" class="form-label">{{__('Enter Name')}}</label>
-                            <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
+                            <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" style="background: rgb(227, 227, 227);" placeholder="" value="" />
                         </div>
                     </div>
 

@@ -45,11 +45,16 @@ class GenerateDocumentController extends Controller
 
         $search = $request['search'] ?? "";
         if ($search != "") {
-            $docs = GenerateDocument::where('file_name', 'LIKE', "%" . $search . "%")->paginate(15);
+            $docs = GenerateDocument::where('file_name', 'LIKE', "%" . $search . "%")
+                ->orderBy('created_at', 'desc')
+                ->paginate(15);
         } elseif ($superAdmin->role_id == '1') {
-            $docs = GenerateDocument::paginate(15);
+            $docs = GenerateDocument::orderBy('created_at', 'desc')
+                ->paginate(15);
         } else {
-            $docs = GenerateDocument::where('org_data_id', $orgId)->paginate(15);
+            $docs = GenerateDocument::where('org_data_id', $orgId)
+                ->orderBy('created_at', 'desc')
+                ->paginate(15);
         }
         return view('files.generate_docs.index', compact(['docs']));
     }
@@ -406,7 +411,8 @@ class GenerateDocumentController extends Controller
         $path = $signedRequest->storeAs('/public/readHashOnly', $signedRequest->getClientOriginalName());
 
         $parser = new Parser();
-        $pdf = $parser->parseFile('storage/readhashOnly/' . $signedRequest->getClientOriginalName());
+
+        $pdf = $parser->parseFile('storage/readHashOnly/' . $signedRequest->getClientOriginalName());
         $text = $pdf->getText();
 
         $requiredSignatures = [

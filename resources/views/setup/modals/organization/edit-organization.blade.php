@@ -20,7 +20,7 @@
                     <div class="modal-body">
                         <div class="mb-5">
                             <label for="" class="form-label">Organization</label>
-                            <input type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="{{$orgList->name}}" />
+                            <input style="background: rgb(227, 227, 227);" type="text" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="{{$orgList->name}}" />
                         </div>
 
                     </div>

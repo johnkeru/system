@@ -38,7 +38,7 @@
                         <!--end::Svg Icon-->
                     </span>
                     <a href="{{ route('setup.index') }}">
-                        <span class="menu-title">References</span>
+                        <span class="menu-title">Organizations</span>
                     </a>
                 </span>
             </div>

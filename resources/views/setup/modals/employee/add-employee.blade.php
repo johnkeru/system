@@ -16,23 +16,23 @@
                     <div class="modal-body">
                         <div class="mb-5">
                             <label for="" class="form-label">{{__('Email')}}</label>
-                            <input type="text" name="email" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
+                            <input style="background: rgb(227, 227, 227);" type="text" name="email" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
                         </div>
                         <div class="mb-5">
                             <label for="" class="form-label">{{__('First Name')}}</label>
-                            <input type="text" name="first_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
+                            <input style="background: rgb(227, 227, 227);" type="text" name="first_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
                         </div>
                         <div class="mb-5">
                             <label for="" class="form-label">{{__('Middle Name')}}</label>
-                            <input type="text" name="middle_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
+                            <input style="background: rgb(227, 227, 227);" type="text" name="middle_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
                         </div>
                         <div class="mb-5">
                             <label for="" class="form-label">{{__('Last Name')}}</label>
-                            <input type="text" name="last_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
+                            <input style="background: rgb(227, 227, 227);" type="text" name="last_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
                         </div>
                         <div class="mb-5">
                             <label for="" class="form-label">{{__('Password')}}</label>
-                            <input type="password" name="password" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
+                            <input style="background: rgb(227, 227, 227);" type="password" name="password" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="" />
                         </div>
                     </div>
 

@@ -20,19 +20,19 @@
                     <div class="modal-body">
                         <div class="mb-5">
                             <label for="" class="form-label">Email</label>
-                            <input type="text" name="email" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="{{$employee->email}}" />
+                            <input style="background: rgb(227, 227, 227);" type="text" name="email" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="{{$employee->email}}" />
                         </div>
                         <div class="mb-5">
                             <label for="" class="form-label">First Name</label>
-                            <input type="text" name="first_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="{{$employee->first_name}}" />
+                            <input style="background: rgb(227, 227, 227);" type="text" name="first_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="{{$employee->first_name}}" />
                         </div>
                         <div class="mb-5">
                             <label for="" class="form-label">Middle Name</label>
-                            <input type="text" name="middle_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="{{$employee->middle_name}}" />
+                            <input style="background: rgb(227, 227, 227);" type="text" name="middle_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="{{$employee->middle_name}}" />
                         </div>
                         <div class="mb-5">
                             <label for="" class="form-label">Last Name</label>
-                            <input type="text" name="last_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="{{$employee->last_name}}" />
+                            <input style="background: rgb(227, 227, 227);" type="text" name="last_name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="" value="{{$employee->last_name}}" />
                         </div>
                         
 
