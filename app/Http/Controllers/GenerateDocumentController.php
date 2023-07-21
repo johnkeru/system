@@ -157,10 +157,12 @@ class GenerateDocumentController extends Controller
 
             $latestFile = $filename;
         }
-        $data->where('id', $id)->update(array(
-            'file' => $latestFile,
-            'file_name' => $request->file_name
-        ));
+        $data->where('id', $id)->update(
+            array(
+                'file' => $latestFile,
+                'file_name' => $request->file_name
+            )
+        );
 
         return redirect()->route('generate-document.index');
     }
@@ -173,7 +175,7 @@ class GenerateDocumentController extends Controller
      */
     public function destroy($id)
     {
-        $mainData  = GenerateDocument::find($id);
+        $mainData = GenerateDocument::find($id);
 
         $userEmail = auth()->user()->email;
         $studentInfo = StudentInfo::where('email', $userEmail)->first('id');
@@ -218,19 +220,23 @@ class GenerateDocumentController extends Controller
         // T stands for Teacher
         $this->process($path, $output_path, $approver_fullName, 'A-' . $checkPDFifHash->hash_pdf . '-A-');
 
-        $data->where('id', $id)->update(array(
-            'status_id' => '3',
-            'file' => 'signed_' . $data->file
-        ));
+        $data->where('id', $id)->update(
+            array(
+                'status_id' => '3',
+                'file' => 'signed_' . $data->file
+            )
+        );
 
         // delete the original pdf file
         File::delete($path);
 
-        TrackDocument::where('control_number', $data->control_number)->update(array(
-            'adv_approved_by' => auth()->user()->id,
-            'adviser_approved' => '1',
-            'adv_app_date' => now(),
-        ));
+        TrackDocument::where('control_number', $data->control_number)->update(
+            array(
+                'adv_approved_by' => auth()->user()->id,
+                'adviser_approved' => '1',
+                'adv_app_date' => now(),
+            )
+        );
 
 
         return redirect()->route('generate-document.index');
@@ -240,16 +246,20 @@ class GenerateDocumentController extends Controller
     {
 
         $data = GenerateDocument::find($id);
-        $data->where('id', $id)->update(array(
-            'status_id' => '2',
-        ));
+        $data->where('id', $id)->update(
+            array(
+                'status_id' => '2',
+            )
+        );
 
-        TrackDocument::where('control_number', $data->control_number)->update(array(
-            'adv_approved_by' => auth()->user()->id,
-            'adviser_approved' => '0',
-            'adv_app_date' => now(),
-            'adv_notes' => $request->notes,
-        ));
+        TrackDocument::where('control_number', $data->control_number)->update(
+            array(
+                'adv_approved_by' => auth()->user()->id,
+                'adviser_approved' => '0',
+                'adv_app_date' => now(),
+                'adv_notes' => $request->notes,
+            )
+        );
 
         return redirect()->route('generate-document.index');
     }
@@ -280,16 +290,20 @@ class GenerateDocumentController extends Controller
         // SA stands for Super Admin
         $this->process($path, $path, $fullName, 'O-' . $checkPDFifHash->hash_pdf . '-O-');
 
-        $data->where('id', $id)->update(array(
-            'status_id' => '4',
-        ));
+        $data->where('id', $id)->update(
+            array(
+                'status_id' => '4',
+            )
+        );
 
 
-        TrackDocument::where('control_number', $data->control_number)->update(array(
-            'osas_approved_by' => auth()->user()->id,
-            'osas_approved' => '1',
-            'osas_app_date' => now(),
-        ));
+        TrackDocument::where('control_number', $data->control_number)->update(
+            array(
+                'osas_approved_by' => auth()->user()->id,
+                'osas_approved' => '1',
+                'osas_app_date' => now(),
+            )
+        );
 
 
         return redirect()->route('generate-document.index');
@@ -298,16 +312,20 @@ class GenerateDocumentController extends Controller
     public function osasDissapproved(Request $request, $id)
     {
         $data = GenerateDocument::find($id);
-        $data->where('id', $id)->update(array(
-            'status_id' => '5',
-        ));
+        $data->where('id', $id)->update(
+            array(
+                'status_id' => '5',
+            )
+        );
 
-        TrackDocument::where('control_number', $data->control_number)->update(array(
-            'osas_approved_by' => auth()->user()->id,
-            'osas_approved' => '0',
-            'osas_app_date' => now(),
-            'osas_notes' => $request->notes,
-        ));
+        TrackDocument::where('control_number', $data->control_number)->update(
+            array(
+                'osas_approved_by' => auth()->user()->id,
+                'osas_approved' => '0',
+                'osas_app_date' => now(),
+                'osas_notes' => $request->notes,
+            )
+        );
 
         return redirect()->route('generate-document.index');
     }
@@ -408,20 +426,26 @@ class GenerateDocumentController extends Controller
         }
 
         $signedRequest = request()->file('test_pdf');
-        $path = $signedRequest->storeAs('/public/readHashOnly', $signedRequest->getClientOriginalName());
+        $path = $signedRequest->storeAs('public/readHashOnly', $signedRequest->getClientOriginalName());
 
         $parser = new Parser();
 
         $pdf = $parser->parseFile('storage/readHashOnly/' . $signedRequest->getClientOriginalName());
         $text = $pdf->getText();
 
+        // preg_match('/A-([A-Za-z0-9]{8})-A-/', $text, $matchesA);
+        // if (isset($matchesA[1])) {
+        //     $hashValues[] = $matchesA[1];
+        // }
+        // dd($hashValues);
+
         $requiredSignatures = [
             'A' => 'Missing or Invalid Adviser Signature.',
             'O' => 'Missing or Invalid OSAS Signature.',
         ];
-
+        // dd($text);
         foreach ($requiredSignatures as $key => $errorMessage) {
-            preg_match('/\b' . $key . '-([A-Za-z0-9]{8})-' . $key . '\b/', $text, $matches);
+            preg_match('/' . $key . '-([A-Za-z0-9]{8})-' . $key . '-/', $text, $matches);
             $signatureHash = $matches[1] ?? null;
 
             if (!$signatureHash) {
@@ -436,7 +460,6 @@ class GenerateDocumentController extends Controller
                 break;
             }
         }
-
         Storage::delete($path);
 
         if (!$data['error']) {
