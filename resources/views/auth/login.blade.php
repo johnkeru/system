@@ -15,14 +15,14 @@
                 {{ __('Sign In') }}
             </h1>
             <!--end::Title-->
-
+<!-- 
             <div class="text-gray-400 fw-bold fs-4">
                 {{ __("Don't have an account?") }}
                 <br>
                 <a href="{{ theme()->getPageUrl('register') }}" class="link-primary fw-bolder">
                     {{ __('Sign up here') }}
                 </a>
-            </div>
+            </div> -->
 
         </div>
         <!--begin::Heading-->

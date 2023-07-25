@@ -460,6 +460,7 @@ class GenerateDocumentController extends Controller
                 break;
             }
         }
+        // deletes after it reads the file for business login.
         Storage::delete($path);
 
         if (!$data['error']) {
