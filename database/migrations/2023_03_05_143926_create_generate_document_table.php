@@ -15,6 +15,7 @@ class CreateGenerateDocumentTable extends Migration
     {
         Schema::create('generate_document', function (Blueprint $table) {
             $table->id();
+            $table->longText('pdf');
             $table->foreignId('org_data_id')
                 ->nullable()
                 ->constrained('org_data')

@@ -13,7 +13,7 @@ class GenerateDocument extends Model
 {
     use HasFactory;
     use HasRoles;
-    protected $fillable = ['control_number','org_data_id','file','file_name', 'status_id'];
+    protected $fillable = ['control_number', 'org_data_id', 'file', 'file_name', 'status_id', 'pdf'];
     protected $table = 'generate_document';
 
     public function orgData()
@@ -31,4 +31,3 @@ class GenerateDocument extends Model
         return $this->belongsTo(TrackDocument::class, 'control_number', 'control_number');
     }
 }
-

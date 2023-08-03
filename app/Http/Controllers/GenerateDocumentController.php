@@ -56,6 +56,9 @@ class GenerateDocumentController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->paginate(15);
         }
+        foreach ($docs as $doc) {
+            $doc->pdf = base64_decode($doc->pdf);
+        }
         return view('files.generate_docs.index', compact(['docs']));
     }
 
@@ -88,6 +91,10 @@ class GenerateDocumentController extends Controller
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
             $filename = $file->getClientOriginalName();
+            // my added code
+            $blobPDF = file_get_contents($file->getRealPath());
+            $base64Blob = base64_encode($blobPDF);
+            // end my code
             $file->move('files/transactions/' . $orgName->name . '/', $filename);
         }
 
@@ -98,7 +105,9 @@ class GenerateDocumentController extends Controller
             'org_data_id' => $orgData->id,
             'file' => $filename,
             'file_name' => $request->file_name,
-            'status_id' => '1'
+            'status_id' => '1',
+            // my code
+            'pdf' => $base64Blob
         ]);
 
         TrackDocument::create([
@@ -212,24 +221,19 @@ class GenerateDocumentController extends Controller
         $data = GenerateDocument::find($id);
         $approver = EmployeeInfo::where('email', auth()->user()->email)->first();
 
-        $substring = Str::before($data->control_number, date('Y'));
-        $path = "files/transactions/" . $substring . '/' . $data->file;
-        $output_path = "files/transactions/" . $substring . '/signed_' . $data->file;
-
         $approver_fullName = $approver->first_name . ' ' . $approver->middle_name . ' ' . $approver->last_name . ' - Adviser';
         // T stands for Teacher
-        $this->process($path, $output_path, $approver_fullName, 'A-' . $checkPDFifHash->hash_pdf . '-A-');
+        $blobPDF = $this->process(base64_decode($data->pdf), $approver_fullName, 'A-' . $checkPDFifHash->hash_pdf . '-A-');
 
         $data->where('id', $id)->update(
             array(
                 'status_id' => '3',
-                'file' => 'signed_' . $data->file
+                'file' => 'signed_' . $data->file,
+                'pdf' => base64_encode($blobPDF)
             )
         );
 
         // delete the original pdf file
-        File::delete($path);
-
         TrackDocument::where('control_number', $data->control_number)->update(
             array(
                 'adv_approved_by' => auth()->user()->id,
@@ -278,21 +282,18 @@ class GenerateDocumentController extends Controller
         if (!request()->hasFile('signature')) {
             return response()->noContent();
         }
+
         $data = GenerateDocument::find($id);
-
         $approver = User::where('email', auth()->user()->email)->first();
-
-        $input = $data->control_number;
-        $substring = Str::before($input, date('Y')); // Use next year as delimiter
-        $path = "files/transactions/" . $substring . '/' . $data->file;
 
         $fullName = $approver->first_name . ' ' . $approver->last_name . ' - Super Admin';
         // SA stands for Super Admin
-        $this->process($path, $path, $fullName, 'O-' . $checkPDFifHash->hash_pdf . '-O-');
+        $blobPDF = $this->process(base64_decode($data->pdf), $fullName, 'O-' . $checkPDFifHash->hash_pdf . '-O-');
 
         $data->where('id', $id)->update(
             array(
                 'status_id' => '4',
+                'pdf' => base64_encode($blobPDF)
             )
         );
 
@@ -333,10 +334,8 @@ class GenerateDocumentController extends Controller
 
 
 
-    private function process($file_path, $output_path, $approver, $hash)
+    private function process($blobPDF, $approver, $hash)
     {
-        $path = public_path($file_path);
-        $output = public_path($output_path);
 
         $signatureFile = request()->file('signature');
         $deleteSignature = false;
@@ -351,20 +350,24 @@ class GenerateDocumentController extends Controller
             $imagePath = public_path('signature.png'); // Replace with the path to your default image file
         }
 
-        $this->fillPDF($path, $output, $imagePath, $approver, $hash);
+        $blobedPDF = $this->fillPDF($blobPDF, $imagePath, $approver, $hash);
 
         if ($deleteSignature && $signaturePath) {
             Storage::delete($signaturePath); // Delete the signature file
         }
+
+        return $blobedPDF;
     }
 
     //* FOR GENERATING SIGNATURE
-    private function fillPDF($path, $output, $imagePath, $approver, $hash)
+    private function fillPDF($blobPDF, $imagePath, $approver, $hash)
     {
         $adviser = (strpos($approver, "Adviser") !== false) ? true : false;
 
         $fpdi = new Fpdi();
-        $count = $fpdi->setSourceFile($path);
+
+        file_put_contents('test.pdf', $blobPDF);
+        $count = $fpdi->setSourceFile('test.pdf');
 
         // Iterate through each page
         for ($pageNo = 1; $pageNo <= $count; $pageNo++) {
@@ -406,7 +409,9 @@ class GenerateDocumentController extends Controller
         }
 
         // Output the modified PDF to a file
-        $fpdi->Output($output, 'F');
+        $fpdi->Output('test.pdf', 'F');
+        $pdfBlob = file_get_contents('test.pdf');
+        return $pdfBlob;
     }
 
 
